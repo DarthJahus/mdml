@@ -3,7 +3,7 @@ requires = ["setuptools>=80.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mdml"
+name = "jahus-mdml"
 version = "0.2.0"
 description = "MDML parser and generator"
 authors = [{ name = "DarthJahus" }]
