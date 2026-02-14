@@ -113,6 +113,11 @@ class Document:
     parse_errors: List[str] = field(default_factory=list)
     raw_content: str = ""
 
+    def __str__(self) -> str:
+        """Generate MDML markup representation of this document"""
+        from .generator import MDMLGenerator
+        return MDMLGenerator.generate_markup(self.to_dict())
+
     def get_field(self, name: str) -> Optional[Field]:
         """Get field by name"""
         return self.fields.get(name)

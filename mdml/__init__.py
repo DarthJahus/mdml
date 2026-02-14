@@ -2,7 +2,7 @@ from .models import Document, Field, FieldValue
 from .parser import MDMLParser
 from .generator import MDMLGenerator
 from .importer import MDMLImporter
-from typing import Optional, Dict, Any
+from typing import Dict, Any, Union
 
 
 # Convenience functions
@@ -11,8 +11,12 @@ def parse_document(content: str) -> Document:
     return MDMLParser.parse_document(content)
 
 
-def generate_markup(data: Dict[str, Any]) -> str:
-    """Generate MDML markup from dictionary"""
+def generate_markup(data: Union[Dict[str, Any], Document]) -> str:
+    """Generate MDML markup from dictionary or Document"""
+    # If it's a Document, convert to dict first
+    # ToDo: native conversion without going through dict?
+    if isinstance(data, Document):
+        data = data.to_dict()
     return MDMLGenerator.generate_markup(data)
 
 
