@@ -22,8 +22,8 @@ class MDMLGenerator:
         if value.is_raw:
             val = f"| {value.value} |"  # Always close pipes in generator (strict)
         elif value.is_array:
-            # Array format: { val1 ; val2 ; val3 }
-            array_str = ' ; '.join(value.array_values)
+            # Array format: { `val1` ; `val2` ; `val3` }
+            array_str = ' ; '.join(f"`{v}`" for v in value.array_values)
             val = f"{{ {array_str} }}"
         elif value.is_wiki_link:
             if value.wiki_link and value.wiki_link != value.value:
@@ -129,7 +129,8 @@ class MDMLGenerator:
                 if value.is_raw:
                     val = f"| {value.value} |"
                 elif value.is_array:
-                    array_str = ' ; '.join(value.array_values)
+                    # Array format: { `val1` ; `val2` ; `val3` }
+                    array_str = ' ; '.join(f"`{v}`" for v in value.array_values)
                     val = f"{{ {array_str} }}"
                 elif value.is_wiki_link:
                     if value.wiki_link and value.wiki_link != value.value:
