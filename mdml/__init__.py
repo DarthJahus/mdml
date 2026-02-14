@@ -16,8 +16,8 @@ def generate_markup(data: Union[Dict[str, Any], Document]) -> str:
     # If it's a Document, convert to dict first
     # ToDo: native conversion without going through dict?
     if isinstance(data, Document):
-        data = data.to_dict()
-    return MDMLGenerator.generate_markup(data)
+        return MDMLGenerator.generate_markup_from_document(data)
+    return MDMLGenerator.generate_markup_from_dict(data)
 
 
 def from_dict(data: Dict[str, Any]) -> Document:

@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from .models import Field, FieldValue
+from .models import Field, FieldValue, Document
 from .formatter import MDMLFormatter
 
 
@@ -162,7 +162,7 @@ class MDMLGenerator:
         return lines
 
     @staticmethod
-    def generate_markup(data: Dict[str, Any], include_frontmatter: bool = True) -> str:
+    def generate_markup_from_dict(data: Dict[str, Any], include_frontmatter: bool = True) -> str:
         """
         Converts a dictionary to MDML format
 
@@ -198,7 +198,13 @@ class MDMLGenerator:
                     fv = FieldValue(
                         value=val_data.get('value', ''),
                         details=val_data.get('details'),
-                        is_strikethrough=val_data.get('is_strikethrough', False)
+                        is_strikethrough=val_data.get('is_strikethrough', False),
+                        is_array=val_data.get('is_array', False),
+                        array_values=val_data.get('array_values', []),
+                        is_raw=val_data.get('is_raw', False),
+                        is_wiki_link=val_data.get('is_wiki_link', False),
+                        wiki_link=val_data.get('wiki_link'),
+                        link_url=val_data.get('link_url')
                     )
                     if val_data.get('datetime'):
                         parts = val_data['datetime'].split()
@@ -208,5 +214,34 @@ class MDMLGenerator:
 
                 lines.extend(MDMLGenerator.generate_field(field))
                 lines.append('')
+
+        return '\n'.join(lines)
+
+    @staticmethod
+    def generate_markup_from_document(doc: 'Document', include_frontmatter: bool = True) -> str:
+        """
+        Generate MDML markup directly from a Document object
+
+        Args:
+            doc: Document instance
+            include_frontmatter: Whether to include YAML frontmatter
+
+        Returns:
+            MDML formatted string
+        """
+        lines = []
+
+        # Frontmatter
+        if include_frontmatter and doc.frontmatter:
+            lines.append('---')
+            for key, value in doc.frontmatter.items():
+                lines.append(f"{key}: {value}")
+            lines.append('---')
+            lines.append('')
+
+        # Fields - iterate directly on Document's fields
+        for field_name, field in doc.fields.items():
+            lines.extend(MDMLGenerator.generate_field(field))
+            lines.append('')
 
         return '\n'.join(lines)

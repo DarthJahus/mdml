@@ -116,7 +116,7 @@ class Document:
     def __str__(self) -> str:
         """Generate MDML markup representation of this document"""
         from .generator import MDMLGenerator
-        return MDMLGenerator.generate_markup(self.to_dict())
+        return MDMLGenerator.generate_markup_from_document(self)
 
     def get_field(self, name: str) -> Optional[Field]:
         """Get field by name"""
