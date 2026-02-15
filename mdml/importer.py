@@ -51,6 +51,7 @@ class MDMLImporter:
             is_array=val_data.get('is_array', False),
             array_values=val_data.get('array_values', []),
             is_raw=val_data.get('is_raw', False),
+            is_raw_url=val_data.get('is_raw_url', False),
             is_wiki_link=val_data.get('is_wiki_link', False),
             wiki_link=val_data.get('wiki_link'),
             link_url=val_data.get('link_url'),

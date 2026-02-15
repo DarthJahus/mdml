@@ -20,7 +20,7 @@ class Patterns:
     DATETIME_SUFFIX = re.compile(r',\s*`?(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?`?\s*$')
 
     # Details in parentheses (after value, before datetime)
-    DETAILS = re.compile(r'\s*\((.+)\)\s*$')
+    #DETAILS = re.compile(r'(?<!\])\s*\(([^)]+)\)\s*$')
 
     # Markdown formatting
     STRIKETHROUGH = re.compile(r'~~(.+?)~~')

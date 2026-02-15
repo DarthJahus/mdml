@@ -5,11 +5,13 @@ from .patterns import Patterns
 from .utils import (
     count_leading_tabs,
     clean_markdown,
+    detect_strikethrough,
     extract_details,
     extract_datetime,
     extract_array,
     extract_raw_text,
-    extract_wiki_link
+    extract_wiki_link,
+    is_url
 )
 
 
@@ -93,21 +95,31 @@ class MDMLParser:
         link_url = None
 
         try:
-            # STEP 1: Extract datetime (always at the end)
             text, date_str, time_str, dt_obj = extract_datetime(text)
 
-            # STEP 2: Check for backticks BEFORE cleaning markdown
-            text_has_backticks = text.strip().startswith('`') and text.strip().endswith('`')
-
-            # STEP 3: Clean markdown (this will remove backticks, links, etc.)
-            text, is_strikethrough, link_url = clean_markdown(text)
-
-            # STEP 4: Extract details (now safe from markdown parentheses)
             text, details = extract_details(text)
 
-            # STEP 5: Detect explicit datatypes
+            is_strikethrough = detect_strikethrough(text)
 
-            # 5.1: RAW text with pipes (highest priority)
+            text_has_backticks = text.strip().startswith('`') and text.strip().endswith('`')
+
+            text, link_url = clean_markdown(text)
+
+            if is_url(text):
+                return FieldValue(
+                    value=text.strip(),
+                    date=date_str,
+                    time=time_str,
+                    datetime_obj=dt_obj,
+                    details=details,
+                    is_strikethrough=is_strikethrough,
+                    link_url=link_url,
+                    is_raw_url=True
+                )
+
+            # Detect explicit datatypes
+
+            # 1: RAW text with pipes (highest priority)
             raw_text, is_raw = extract_raw_text(text)
             if is_raw:
                 return FieldValue(
@@ -121,7 +133,7 @@ class MDMLParser:
                     parse_error=None
                 )
 
-            # 5.2: Array format
+            # 2: Array format
             array_values, text_without_array = extract_array(text)
             if array_values is not None:
                 return FieldValue(
@@ -136,7 +148,7 @@ class MDMLParser:
                     parse_error=None
                 )
 
-            # 5.3: Wiki link format
+            # 3: Wiki link format
             wiki_link, display, is_wiki = extract_wiki_link(text)
             if is_wiki:
                 return FieldValue(
@@ -151,7 +163,7 @@ class MDMLParser:
                     parse_error=None
                 )
 
-            # STEP 6: Detect intentional formatting
+            # Detect intentional formatting
             clean_text = text
 
             # Detect intentional formatting (backticks were checked earlier)
@@ -161,7 +173,7 @@ class MDMLParser:
                     text_has_backticks  # `...` (detected before cleaning)
             )
 
-            # STEP 7: Fallback to RAW (only for multi-word text without formatting)
+            # Fallback to RAW (only for multi-word text without formatting)
             should_fallback_raw = (
                     not has_intentional_formatting and
                     ' ' in clean_text
@@ -179,7 +191,7 @@ class MDMLParser:
                     parse_error=None
                 )
 
-            # STEP 8: Regular value (single word or with intentional formatting)
+            # Regular value (single word or with intentional formatting)
             return FieldValue(
                 value=clean_text,
                 date=date_str,

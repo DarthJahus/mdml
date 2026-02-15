@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Tuple, Optional, List
 from .patterns import Patterns
+from re import compile, IGNORECASE
 
 
 def count_leading_tabs(line: str) -> int:
@@ -11,20 +12,33 @@ def count_leading_tabs(line: str) -> int:
     return 0
 
 
-def clean_markdown(text: str) -> Tuple[str, bool, Optional[str]]:
+def detect_strikethrough(text: str) -> bool:
     """
-    Removes markdown formatting and detects strikethrough
+    Detects if text has strikethrough formatting ~~text~~
+
+    Args:
+        text: The text to check
 
     Returns:
-        tuple: (cleaned_text, is_strikethrough, link_url)
+        True if ~~...~~ pattern is found
     """
-    is_strikethrough = bool(Patterns.STRIKETHROUGH.search(text))
+    return bool(Patterns.STRIKETHROUGH.search(text))
+
+
+def clean_markdown(text: str) -> Tuple[str, Optional[str]]:
+    """
+    Removes markdown formatting (strikethrough, backticks, links)
+    Does NOT detect strikethrough - use detect_strikethrough() first
+
+    Returns:
+        tuple: (cleaned_text, link_url)
+    """
     link_url = None
 
     # Extract link
     link_match = Patterns.LINK.search(text)
     if link_match:
-        text = Patterns.LINK.sub(r'\1', text)  # ← Remplace [text](url) par text
+        text = Patterns.LINK.sub(r'\1', text)  # Replace [text](url) with text
         link_url = link_match.group(2)
 
     # Remove strikethrough
@@ -33,23 +47,54 @@ def clean_markdown(text: str) -> Tuple[str, bool, Optional[str]]:
     # Remove code blocks
     text = Patterns.CODE_BLOCK.sub(r'\1', text)
 
-    return text.strip(), is_strikethrough, link_url
+    return text.strip(), link_url
 
 
 def extract_details(text: str) -> Tuple[str, Optional[str]]:
     """
-    Extracts details from parentheses (before datetime)
+    Extracts details from the LAST parentheses pair at end of text
+    Supports nested parentheses and markdown links within details
 
     Returns:
         tuple: (text_without_details, details)
     """
-    match = Patterns.DETAILS.search(text)
-    if not match:
+    text = text.rstrip()
+
+    # Must end with )
+    if not text.endswith(')'):
         return text, None
 
-    # Remove details from text
-    text_clean = text[:match.start()].strip()
-    details = match.group(1).strip()
+    # Walk backwards to find matching opening paren
+    paren_count = 1
+    pos = len(text) - 2  # Start before last )
+
+    while pos >= 0:
+        if text[pos] == ')':
+            paren_count += 1
+        elif text[pos] == '(':
+            paren_count -= 1
+
+            # Found a matching opening paren
+            if paren_count == 0:
+                # Check if this is part of a markdown link ](...)
+                if pos > 0 and text[pos - 1] == ']':
+                    # This (...) is a markdown link, continue searching for outer pair
+                    paren_count = 1  # Reset and keep searching
+                else:
+                    # This is our detail block!
+                    break
+
+        pos -= 1
+
+    if paren_count != 0 or pos < 0:
+        # Unbalanced parens or not found
+        return text, None
+
+    open_pos = pos
+
+    # Extract detail content
+    details = text[open_pos + 1:-1].strip()
+    text_clean = text[:open_pos].strip()
 
     return text_clean, details
 
@@ -151,3 +196,17 @@ def extract_wiki_link(text: str) -> Tuple[Optional[str], Optional[str], bool]:
 
     return wiki_link, display, True
 
+
+def is_url(text: str) -> bool:
+    """
+    Checks if text is a pure URL (http, https, ftp, ws, wss, etc.)
+
+    Returns:
+        True if text is a valid URL with protocol
+    """
+    url_pattern = compile(
+        r'^(https?|ftp|ftps|ws|wss|file)://'  # Protocol
+        r'[^\s]+$',  # Rest of URL (no whitespace)
+        IGNORECASE
+    )
+    return bool(url_pattern.match(text.strip()))

@@ -18,11 +18,13 @@ class FieldValue:
     array_values: List[str] = field(default_factory=list)
     is_raw: bool = False
     is_wiki_link: bool = False
+    is_raw_url: bool = False
     link_url: Optional[str] = None
     wiki_link: Optional[str] = None
     sub_items: Dict[str, 'FieldValue'] = field(default_factory=dict)  # Named sub-fields
     list_sub_items: List['FieldValue'] = field(default_factory=list)  # List sub-items
     parse_error: Optional[str] = None  # Non-blocking parse error
+
 
     @property
     def datetime_str(self) -> Optional[str]:
@@ -51,6 +53,8 @@ class FieldValue:
             result['is_raw'] = True
         if self.is_wiki_link:
             result['is_wiki_link'] = True
+        if self.is_raw_url:
+            result['is_raw_url'] = True
         if self.link_url:
             result['link_url'] = self.link_url
         if self.wiki_link:

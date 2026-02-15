@@ -63,13 +63,16 @@ class MDMLGenerator:
             # Determine if sub-value has metadata
             has_metadata = bool(sub_value.date or sub_value.details)
 
-            # Quote sub-field value
-            sub_val = MDMLFormatter.quote_value(
-                text=sub_value.value,
-                context='list',
-                has_metadata=has_metadata,
-                is_raw=False
-            )
+            if value.is_raw_url:
+                sub_val = sub_value.value  # no backticks for URL
+            else:
+                # Quote sub-field value
+                sub_val = MDMLFormatter.quote_value(
+                    text=sub_value.value,
+                    context='list',
+                    has_metadata=has_metadata,
+                    is_raw=False
+                )
 
             # Add details for sub-field
             if sub_value.details:
@@ -137,8 +140,10 @@ class MDMLGenerator:
                         val = f"[[{value.wiki_link}|{value.value}]]"
                     else:
                         val = f"[[{value.value}]]"
+                elif value.is_raw_url:
+                    val = value.value  # no backticks for URL
                 else:
-                    # Backticks obligatoires pour valeurs normales inline
+                    # Backticks by default for inline values
                     has_metadata = bool(value.date or value.details)
                     val = MDMLFormatter.quote_value(
                         text=value.value,
