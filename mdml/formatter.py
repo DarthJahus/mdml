@@ -1,3 +1,5 @@
+from .patterns import Patterns
+
 class MDMLFormatter:
     """Centralized formatting rules for MDML generation"""
 
@@ -46,8 +48,14 @@ class MDMLFormatter:
             return f"`{escaped}`"
 
         elif context == 'list':
-            # List values: backticks are OPTIONAL
-            # Generator never adds them, but parser accepts them
+            # List values:
+            #   backticks are OPTIONAL
+            #   Generator adds them in certain situations
+            #   Parser always accepts them
+            if MDMLFormatter.needs_quoting(text):
+                return f"`{text}`"
+            if MDMLFormatter.needs_quoting_in_list(text):
+                return f"`{text}`"
             return text
 
         else:
@@ -65,3 +73,57 @@ class MDMLFormatter:
             Indentation string (tabs)
         """
         return MDMLFormatter.INDENT_CHAR * level
+
+    @staticmethod
+    def needs_quoting_in_list(text: str) -> bool:
+        """
+        Determine if a list value needs backticks.
+
+        Cases requiring backticks:
+        - Pure numbers: 56467, 312.54, 416,578
+        - Dates: 2026-02-15
+        - Times: 21:24, 21:24:30
+        - Datetimes: 2026-02-15 21:24
+        - Handles: @something
+        - Variables/emojis: %something%
+        """
+
+        # Handle/mention (@ at the start only)
+        if text.startswith('@') and ' ' not in text and '@' not in text[1:]:
+            return True
+
+        # Variable/emoji (wrapped in %)
+        if text.startswith('%') and text.endswith('%') and ' ' not in text:
+            return True
+
+        # Pure number (int or float, with optional thousand separators)
+        # Matches: 123, 123.45, 1,234, 1,234.56
+        if Patterns.NUMBER.match(text):
+            return True
+
+        # Date (ISO format: YYYY-MM-DD)
+        if Patterns.DATE.match(text):
+            return True
+
+        # Time (HH:MM or HH:MM:SS)
+        if Patterns.TIME.match(text):
+            return True
+
+        # Datetime (YYYY-MM-DD HH:MM or YYYY-MM-DD HH:MM:SS)
+        if Patterns.DATETIME.match(text):
+            return True
+
+        # Scientific notation: 1.5e10, 2.3E-5, -1.5e10
+        # Matches: 1e10, 1.5e10, 1.5E-10, -1.5e10
+        if Patterns.SCIENTIFIC.match(text):
+            return True
+
+        # IPv4
+        if Patterns.IPv4.match(text):
+            return True
+
+        # IPv6 (supports full and compressed formats)
+        if Patterns.IPv6.match(text) or text == '::':
+            return True
+
+        return False

@@ -1,4 +1,3 @@
-import re
 from typing import Optional, List, Dict, Tuple
 from .models import FieldValue, Field, Document, FieldBlock
 from .patterns import Patterns

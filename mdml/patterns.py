@@ -38,3 +38,21 @@ class Patterns:
 
     # Wiki link format: [[link_name]]
     WIKI_LINK = re.compile(r'\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]')
+
+    NUMBER = re.compile(r'^\d{1,3}(,\d{3})*(\.\d+)?$')
+
+    DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+
+    TIME = re.compile(r'^\d{2}:\d{2}(:\d{2})?$')
+
+    DATETIME = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$')
+
+    SCIENTIFIC = re.compile(r'^-?\d+(\.\d+)?[eE][+-]?\d+$')
+
+    IPv4 = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
+
+    # Matches: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+    #          2001:db8:85a3::8a2e:370:7334
+    #          ::1
+    #          fe80::
+    IPv6 = re.compile(r'^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$')
