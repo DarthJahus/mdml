@@ -42,13 +42,13 @@ class MDMLFormatter:
         if is_wiki_link:
             return f"[[{text}]]"
 
+        if has_metadata:
+            return f"`{text}`"
+
         if context == 'inline':
             # Inline values: backticks required UNLESS it's a known datatype
             escaped = text.replace('`', '\\`')
             return f"`{escaped}`"
-
-        if has_metadata:
-            return f"`{text}`"
 
         elif context == 'list':
             # List values:

@@ -32,11 +32,13 @@ class MDMLGenerator:
                 val = f"[[{value.value}]]"
         else:
             # Apply quoting rules for list context
+            has_metadata = bool(value.date or value.details)
             # Backticks are now OPTIONAL
             val = MDMLFormatter.quote_value(
                 text=value.value,
                 context='list',
-                is_wiki_link=False
+                is_wiki_link=False,
+                has_metadata=has_metadata
             )
 
             # Apply strikethrough AFTER quoting
