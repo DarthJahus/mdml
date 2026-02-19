@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jahus-mdml"
-version = "0.2.6"
+version = "0.2.7"
 description = "MDML parser and generator"
 authors = [{ name = "DarthJahus" }]
 dependencies = []

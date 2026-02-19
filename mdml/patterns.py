@@ -39,7 +39,9 @@ class Patterns:
     # Wiki link format: [[link_name]]
     WIKI_LINK = re.compile(r'\[\[([^\|\]]+)(?:\|([^\]]+))?\]\]')
 
-    NUMBER = re.compile(r'^\d{1,3}(,\d{3})*(\.\d+)?$')
+    NUMBER_FORMATTED = re.compile(r'^\d{1,3}(,\d{3})*(\.\d+)?$')
+
+    NUMBER = re.compile(r'^-?\d+(\.\d+)?$')
 
     DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 

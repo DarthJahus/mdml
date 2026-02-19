@@ -104,6 +104,9 @@ class MDMLFormatter:
         if Patterns.NUMBER.match(text):
             return True
 
+        if Patterns.NUMBER_FORMATTED.match(text):
+            return True
+
         # Date (ISO format: YYYY-MM-DD)
         if Patterns.DATE.match(text):
             return True
