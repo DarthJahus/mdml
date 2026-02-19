@@ -27,7 +27,7 @@ class MDMLFormatter:
         Args:
             text: The text value to quote
             context: Either 'inline' or 'list'
-            has_metadata: Ignored (kept for compatibility)
+            has_metadata: quote if one word
             is_raw: Ignored (kept for compatibility)
             is_wiki_link: Avoid wrapping wikilinks in backticks
 
@@ -46,6 +46,9 @@ class MDMLFormatter:
             # Inline values: backticks required UNLESS it's a known datatype
             escaped = text.replace('`', '\\`')
             return f"`{escaped}`"
+
+        if has_metadata:
+            return f"`{text}`"
 
         elif context == 'list':
             # List values:
