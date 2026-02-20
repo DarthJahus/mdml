@@ -38,7 +38,8 @@ class MDMLGenerator:
                 text=value.value,
                 context='list',
                 is_wiki_link=False,
-                has_metadata=has_metadata
+                has_metadata=has_metadata,
+                is_raw_url=value.is_raw_url
             )
 
             # Apply strikethrough AFTER quoting
@@ -73,7 +74,8 @@ class MDMLGenerator:
                     text=sub_value.value,
                     context='list',
                     has_metadata=has_metadata,
-                    is_raw=False
+                    is_raw=False,
+                    is_raw_url=sub_value.is_raw_url
                 )
 
             # Add details for sub-field

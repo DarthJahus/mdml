@@ -20,7 +20,7 @@ class MDMLFormatter:
         return any(c in text for c in MDMLFormatter.SPECIAL_CHARS)
 
     @staticmethod
-    def quote_value(text: str, context: str, has_metadata: bool = False, is_raw: bool = False, is_wiki_link: bool = False) -> str:
+    def quote_value(text: str, context: str, has_metadata: bool = False, is_raw: bool = False, is_wiki_link: bool = False, is_raw_url: bool = False) -> str:
         """
         Applies quoting rules based on context
 
@@ -41,6 +41,9 @@ class MDMLFormatter:
         # Wiki links are never wrapped
         if is_wiki_link:
             return f"[[{text}]]"
+
+        if is_raw_url:
+            return text.strip()
 
         if has_metadata:
             return f"`{text}`"
