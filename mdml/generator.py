@@ -191,7 +191,7 @@ class MDMLGenerator:
             for key, value in data['frontmatter'].items():
                 lines.append(f"{key}: {value}")
             lines.append('---')
-            lines.append('')
+            # lines.append('')  # Remove the extra line break after the frontmatter
 
         # Fields
         if 'fields' in data:
@@ -247,7 +247,7 @@ class MDMLGenerator:
             for key, value in doc.frontmatter.items():
                 lines.append(f"{key}: {value}")
             lines.append('---')
-            lines.append('')
+            # lines.append('')  # Remove the extra line break after the frontmatter
 
         # Fields - iterate directly on Document's fields
         for field_name, field in doc.fields.items():
