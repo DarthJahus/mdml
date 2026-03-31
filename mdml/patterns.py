@@ -18,6 +18,9 @@ class Patterns:
 
     # Date/time extraction (at end of value, after comma)
     DATETIME_SUFFIX = re.compile(r',\s*`?(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?`?\s*$')
+    
+    # Date/time extraction (whole text is DateTime)
+    DATETIME_ONLY = re.compile(r'^`?(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?`$')
 
     # Details in parentheses (after value, before datetime)
     #DETAILS = re.compile(r'(?<!\])\s*\(([^)]+)\)\s*$')

@@ -108,13 +108,19 @@ def extract_datetime(text: str) -> Tuple[str, Optional[str], Optional[str], Opti
     """
     match = Patterns.DATETIME_SUFFIX.search(text)
     if not match:
-        return text, None, None, None
-
-    # Remove datetime from text
-    text_clean = text[:match.start()].strip()
-
-    date_str = match.group(1)
-    time_str = match.group(2)  # May be None
+        # check if text is only a datetime object
+        match = Patterns.DATETIME_ONLY.search(text)  # ToDo: Should we postpone this check until we get other field data?
+        if not match:
+            return text, None, None, None
+        else:
+            date_str = match.group(1)
+            time_str = match.group(2)
+            text_clean = ''
+    else:
+        # Remove datetime from text
+        date_str = match.group(1)
+        time_str = match.group(2)  # May be None
+        text_clean = text[:match.start()].strip()
 
     # Parse datetime
     dt_obj = None
